@@ -13,14 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://3dfencehouston.com'),
+  metadataBase: new URL('https://www.3dfencing.com'),
   title: "3D Fence & Welding | Houston Fence Installation & Custom Gates | (281) 748-1111",
   description: "Houston's trusted fence company for 15+ years. Cedar fence installation, custom iron gates, automatic driveway gates & LiftMaster openers. Serving Katy, The Woodlands, Sugar Land. Free estimates!",
   keywords: ["Fence Installation Houston", "Driveway Gates", "Automatic Gate Openers", "Wrought Iron Fences", "Cedar Fencing", "Welding Services Houston", "Fence Repair"],
   openGraph: {
     title: "3D Fence & Welding | Houston's Experts in Fencing & Automatic Gates",
     description: "Premier Houston fence contractor specializing in custom driveway gates, automatic gate openers, wood privacy fences, and professional welding fabrication. 15+ years experience.",
-    url: 'https://3dfencehouston.com',
+    url: 'https://www.3dfencing.com',
     siteName: '3D Fence & Welding',
     locale: 'en_US',
     type: 'website',
@@ -61,9 +61,9 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
               "name": "3D Fence & Welding",
-              "image": "https://3dfencehouston.com/images/hero-bg.png",
-              "@id": "https://3dfencehouston.com",
-              "url": "https://3dfencehouston.com",
+              "image": "https://www.3dfencing.com/images/hero-bg.png",
+              "@id": "https://www.3dfencing.com",
+              "url": "https://www.3dfencing.com",
               "telephone": "+12817481111",
               "description": "Houston's trusted fence company for 15+ years. Cedar fence installation, custom iron gates, automatic driveway gates & LiftMaster openers.",
               "address": {
