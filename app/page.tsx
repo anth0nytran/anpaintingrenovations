@@ -427,49 +427,49 @@ export default function EliteHomeRepairs() {
   ];
   const recentJobs = [
     {
-      title: 'Full Roof Replacement',
-      location: 'Kingwood',
-      duration: '2 Days',
-      result: 'Seamless repair after storm damage',
+      title: 'Siding Replacement',
+      location: 'Spring',
+      duration: '4 Days',
+      result: 'Complete siding renovation caused by weather damage',
       beforeImage: '/images/project_showcase/before_1.png',
       afterImage: '/images/project_showcase/after_1.png',
-      alt: 'Roof shingle repair'
+      alt: 'Siding replacement project'
     },
     {
-      title: 'Exterior Painting Refresh',
-      location: 'The Woodlands',
-      duration: '3 Days',
-      result: 'Complete exterior repaint with premium weather-proof paint',
+      title: 'Siding & Window Replacement',
+      location: 'Kingwood',
+      duration: '1 Week',
+      result: 'Full exterior upgrade with energy-efficient windows',
       beforeImage: '/images/project_showcase/before_2.png',
       afterImage: '/images/project_showcase/after_2.png',
-      alt: 'Exterior home painting'
+      alt: 'Siding and window replacement'
     },
     {
-      title: 'Energy Efficient Windows',
-      location: 'Spring',
-      duration: '2 Days',
-      result: 'Double-pane window installation',
+      title: 'Roof Replacement',
+      location: 'Roman Forest',
+      duration: '3 Days',
+      result: 'Complete roof replacement with premium shingles',
       beforeImage: '/images/project_showcase/before_3.png',
       afterImage: '/images/project_showcase/after_3.png',
-      alt: 'New energy efficient windows'
+      alt: 'Roof replacement project'
     },
     {
-      title: 'Custom Patio Remodel',
-      location: 'Atascocita',
-      duration: '1 Week',
-      result: 'Covered patio addition with custom lighting',
+      title: 'Siding Replacement',
+      location: 'Galveston',
+      duration: '5 Days',
+      result: 'Weather-resistant siding installation for coastal home',
       beforeImage: '/images/project_showcase/before_4.png',
-      afterImage: '/images/project_showcase/after_5.png',
-      alt: 'Custom patio remodel'
+      afterImage: '/images/project_showcase/after_5.png', // Note: keep original image mapping if possible, before_4/after_5 was in original code
+      alt: 'Coastal siding replacement'
     },
     {
-      title: 'Siding Renovation',
-      location: 'Humble',
-      duration: '4 Days',
-      result: 'Complete siding replacement and weatherproofing',
+      title: 'Roof Replacement',
+      location: 'Magnolia',
+      duration: '2 Days',
+      result: 'High-quality roof installation and weatherproofing',
       beforeImage: '/images/project_showcase/before_5.png',
-      afterImage: '/images/project_showcase/after_4.png',
-      alt: 'Siding renovation'
+      afterImage: '/images/project_showcase/after_4.png', // Note: keep original image mapping, before_5/after_4 was in original code
+      alt: 'Residential roof replacement'
     },
   ];
 
@@ -912,9 +912,9 @@ export default function EliteHomeRepairs() {
 
           {/* Snap Scroll Container - Optimized with Next.js Image */}
           <div className="flex overflow-x-auto pb-8 -mx-4 px-4 gap-8 snap-x md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible">
-            {recentJobs.map((job) => (
+            {recentJobs.map((job, i) => (
               <ProjectCard
-                key={job.title}
+                key={`${job.title}-${i}`}
                 {...job}
                 accentColor={accent}
                 actionColor={action}
