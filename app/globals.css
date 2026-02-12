@@ -1,40 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Modern Professional Palette - High End Construction */
+  /* Slate-900 base for that premium dark look, but not "void" black */
+  --background: #0f172a;
+  --foreground: #f8fafc;
+
+  /* Professional Color System */
+  --color-pro-bg: #0f172a;
+  /* Deep Slate */
+  --color-pro-card: #1e293b;
+  /* Slate 800 */
+  --color-pro-surface: #1e293b;
+  /* Slate 800 */
+
+  /* Trusted Blue Accent - Professional, not Neon */
+  --color-pro-accent: #3b82f6;
+  /* Blue 500 */
+  --color-pro-accent-dark: #2563eb;
+  /* Blue 600 */
+  --color-pro-accent-light: #60a5fa;
+  /* Blue 400 */
+
+  --color-pro-border: #334155;
+  /* Slate 700 */
+  --color-pro-text-muted: #94a3b8;
+  /* Slate 400 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-app-body);
-  --font-mono: var(--font-app-mono);
   --font-display: var(--font-app-display);
+
+  /* Extend Theme with Professional Colors */
+  --color-tech-bg: var(--color-pro-bg);
+  /* Mapping old names to new vars to prevent crashes during refactor */
+  --color-tech-card: var(--color-pro-card);
+  --color-tech-surface: var(--color-pro-surface);
+  --color-tech-accent: var(--color-pro-accent);
+  --color-tech-border: var(--color-pro-border);
+  --color-tech-text-muted: var(--color-pro-text-muted);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a;
+    --foreground: #f8fafc;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-app-body), "Segoe UI", sans-serif;
+  font-family: var(--font-app-body), "Inter", "Segoe UI", sans-serif;
 }
 
-.elite-site h1,
-.elite-site h2,
-.elite-site h3,
-.elite-site h4,
-.elite-site h5,
-.elite-site h6,
-.elite-site .font-black,
-.elite-site .font-extrabold,
-.elite-site .brand-display,
-.elite-site .uppercase {
-  font-family: var(--font-app-display), "Arial Narrow", sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-display {
+  font-family: var(--font-app-display), "Barlow Condensed", "Arial Narrow", sans-serif;
+  letter-spacing: 0.02em;
+  /* Slight tracking for pro look */
 }
