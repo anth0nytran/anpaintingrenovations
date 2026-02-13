@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import NextImage from 'next/image';
 import Link from 'next/link';
 
@@ -16,10 +16,10 @@ export default function Footer() {
         <div className="grid md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 lg:gap-16 mb-16">
           <div className="space-y-5">
             <Link href="/" className="inline-block">
-              <NextImage src="/images/logo.PNG" alt="A&N Painting and Remodeling" width={56} height={56} className="h-14 w-14 object-contain" />
+              <NextImage src="/images/real_logo.svg" alt="A&N Painting and Renovations" width={56} height={56} className="h-14 w-14 object-contain" />
             </Link>
             <p className="text-neutral-400 text-sm leading-relaxed max-w-xs">
-              Houston&apos;s trusted painting and renovation contractor. Licensed, insured, and committed to transforming your home with quality craftsmanship.
+              Houston&apos;s trusted painting and renovations contractor. Licensed, insured, and committed to transforming your home with quality craftsmanship.
             </p>
           </div>
 
@@ -59,12 +59,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-neutral-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-xs text-neutral-600">&copy; {new Date().getFullYear()} A&amp;N Painting and Remodeling. All rights reserved.</div>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors">Privacy</a>
-            <a href="#" className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors">Terms</a>
-          </div>
+        <div className="pt-8 border-t border-neutral-800">
+          <div className="text-xs text-neutral-600 text-center">&copy; {new Date().getFullYear()} A&amp;N Painting and Renovations. All rights reserved.</div>
         </div>
       </div>
     </footer>

@@ -1,241 +1,250 @@
 'use client';
 
-import { useState, useEffect, type FormEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, ArrowRight, Check, Clock, MapPin, ShieldCheck, Star } from 'lucide-react';
+import { Phone, MapPin, Clock, ShieldCheck, FileText, Zap, Lock } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
+import QuoteForm from '../components/QuoteForm';
 
 const PHONE = '(832) 267-6657';
 const CLEAN_PHONE = '8322676657';
 const shell = 'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 xl:px-12 2xl:max-w-[1400px] 2xl:px-16';
+const HOUSTON_CENTER = { lat: 29.7604, lng: -95.3698 };
+const SERVICE_RADIUS_MILES = 25;
+const DEFAULT_MAP_ZOOM = 9;
+const ZOOM_OUT_STEPS = 1;
+const EARTH_CIRCUMFERENCE_METERS = 40075016.686;
+const TILE_SIZE = 256;
+const SERVICE_RADIUS_METERS = SERVICE_RADIUS_MILES * 1609.344;
+const LAT_RAD = (HOUSTON_CENTER.lat * Math.PI) / 180;
+
+const getMetersPerPixel = (zoom: number) =>
+  (EARTH_CIRCUMFERENCE_METERS * Math.cos(LAT_RAD)) / (TILE_SIZE * 2 ** zoom);
+
+const getRadiusPixelsForZoom = (zoom: number) => SERVICE_RADIUS_METERS / getMetersPerPixel(zoom);
+
+const steps = [
+  { number: '01', title: 'Reach Out', body: 'Fill out the form or give us a call. We’ll gather some initial details about your project to ensure we’re the right fit.' },
+  { number: '02', title: 'Schedule Visit', body: 'We’ll coordinate a time that works for you to visit your property for a free, comprehensive consultation.' },
+  { number: '03', title: 'Receive Quote', body: 'Within 24 hours of our visit, you’ll receive a detailed written proposal with clear pricing and next steps.' },
+];
 
 export default function ContactPage() {
-  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
-  const [formError, setFormError] = useState('');
-  const [phoneValue, setPhoneValue] = useState('');
-  const [pageUrl, setPageUrl] = useState('');
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [mapZoom, setMapZoom] = useState(DEFAULT_MAP_ZOOM);
+  const [radiusPixels, setRadiusPixels] = useState(getRadiusPixelsForZoom(DEFAULT_MAP_ZOOM));
 
-  useEffect(() => { setPageUrl(window.location.href); }, []);
+  useEffect(() => {
+    const updateMapScale = () => {
+      const width = mapRef.current?.clientWidth ?? 0;
+      if (!width) return;
 
-  const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 10);
-    if (digits.length === 0) return '';
-    if (digits.length <= 3) return `(${digits}`;
-    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  };
+      // Keep the circle near the map edges while preserving a true 25-mile radius.
+      const targetRadiusPixels = width * 0.46;
+      const targetMetersPerPixel = SERVICE_RADIUS_METERS / targetRadiusPixels;
+      const rawZoom = Math.log2(
+        (EARTH_CIRCUMFERENCE_METERS * Math.cos(LAT_RAD)) / (TILE_SIZE * targetMetersPerPixel),
+      );
+      const clampedZoom = Math.min(11, Math.max(8, rawZoom));
+      const snappedZoom = Math.max(8, Math.min(11, Math.round(clampedZoom) - ZOOM_OUT_STEPS));
+      setMapZoom(snappedZoom);
+      setRadiusPixels(getRadiusPixelsForZoom(snappedZoom));
+    };
 
-  const scrollToForm = () => {
-    const el = document.getElementById('contact-form');
-    if (el) {
-      const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  };
+    updateMapScale();
+    const observer = new ResizeObserver(updateMapScale);
+    if (mapRef.current) observer.observe(mapRef.current);
+    window.addEventListener('resize', updateMapScale);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setFormError('');
-    setFormStatus('sending');
-    const form = event.currentTarget;
-    const fd = new FormData(form);
-    const name = String(fd.get('name') || '').trim();
-    const phone = String(fd.get('phone') || '').trim();
-    const email = String(fd.get('email') || '').trim();
-    const service = String(fd.get('service') || '').trim();
-    const honeypot = String(fd.get('website') || '').trim();
-    if (honeypot) { form.reset(); setPhoneValue(''); setFormStatus('success'); return; }
-    if (!name || !phone || !email || !service) { setFormStatus('error'); setFormError('Please fill out all required fields.'); return; }
-    try {
-      const res = await fetch('/api/lead', { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
-      const payload = await res.json().catch(() => null);
-      if (!res.ok || !payload?.ok) { setFormStatus('error'); setFormError(payload?.error || 'Something went wrong. Please try again.'); return; }
-      form.reset(); setPhoneValue(''); setFormStatus('success');
-    } catch { setFormStatus('error'); setFormError('Something went wrong. Please try again.'); }
-  };
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateMapScale);
+    };
+  }, []);
 
-  const inputCls = 'w-full bg-neutral-900 border border-neutral-700 rounded-lg px-4 py-3.5 text-sm text-white placeholder-neutral-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all';
+  const mapEmbedSrc = `https://www.google.com/maps?hl=en&ll=${HOUSTON_CENTER.lat},${HOUSTON_CENTER.lng}&z=${mapZoom}&output=embed`;
 
   return (
-    <div className="relative bg-black text-white">
-      <Navigation onQuoteClick={scrollToForm} />
+    <div className="relative bg-black text-white selection:bg-blue-500/30">
+      <Navigation onQuoteClick={() => {
+        const el = document.getElementById('contact-form');
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }} />
 
       {/* ════════════════ HERO ════════════════ */}
-      <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-neutral-950" />
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        <div className={`${shell} relative z-10`}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-2xl">
-            <span className="text-red-500 font-semibold uppercase tracking-widest text-xs mb-5 block">Contact Us</span>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-6">
-              Let&apos;s Start<br /><span className="text-blue-500">Your Project.</span>
+      <section className="relative pt-40 pb-20 md:pt-48 md:pb-28 bg-black overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/images/project_cta.webp')] bg-cover bg-center opacity-40 blur-sm" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+
+        <div className={`${shell} relative z-10 text-center`}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <div className="inline-flex items-center gap-2 bg-neutral-900/80 border border-neutral-800 rounded-full px-5 py-2 mb-8 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-neutral-300 text-sm font-bold tracking-widest uppercase">Contact Us</span>
+            </div>
+
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tighter leading-[1.1] mb-6 max-w-4xl mx-auto">
+              Get a Free Estimate <br className="hidden md:block" />
+              <span className="text-blue-500">In Houston</span>
             </h1>
-            <p className="text-neutral-400 text-lg leading-relaxed">
-              Free estimates, no obligation. Tell us what you need and we&apos;ll get back to you within 24 hours.
+
+            <p className="text-lg md:text-xl text-neutral-400 max-w-2xl mx-auto leading-relaxed">
+              Ready to start your project? Fill out the form below or give us a call. <br className="hidden sm:block" />
+              We provide clear, written estimates and respond within 24 hours.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ════════════════ FORM + INFO ════════════════ */}
-      <section className="py-16 md:py-24 bg-black border-t border-neutral-800/50">
+      {/* ════════════════ MAIN CONTENT ════════════════ */}
+      <section className="py-20 bg-black" id="contact-content">
         <div className={shell}>
-          <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-12 lg:gap-20 items-start">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
-            {/* Form */}
-            <motion.div id="contact-form" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5 }}>
-              <div className="rounded-2xl p-8 sm:p-10 bg-neutral-950 border border-neutral-800">
-                <h2 className="text-2xl font-bold text-white mb-1">Request Your Free Estimate</h2>
-                <p className="text-neutral-500 text-sm mb-8">We respond within 24 hours — usually much sooner.</p>
+            {/* LEFT COLUMN: INFO & MAP */}
+            <div className="space-y-8">
+              {/* Contact Card - Refined */}
+              <div className="bg-neutral-900/40 border border-neutral-800 rounded-2xl p-10 lg:p-12">
+                <h3 className="text-2xl font-bold text-white mb-10 tracking-tight">Contact Information</h3>
 
-                <form className="space-y-4" action="/api/lead" method="POST" onSubmit={handleSubmit}>
-                  <input type="text" name="website" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
-                  <input type="text" name="company_url" style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
-                  <input type="text" name="fax" style={{ opacity: 0, height: 0, width: 0, position: 'absolute' }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
-                  <input type="text" name="address2" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-                  <input type="hidden" name="_ts" value={Date.now().toString()} />
-                  <input type="hidden" name="page" value={pageUrl} />
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Name *</label>
-                      <input required name="name" type="text" placeholder="John Doe" className={inputCls} />
+                <div className="space-y-10">
+                  <div className="group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Phone className="h-4 w-4 text-blue-500" />
+                      <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Phone</span>
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Phone *</label>
-                      <input required name="phone" type="tel" placeholder="(713) 555-0123" value={phoneValue} onChange={e => setPhoneValue(formatPhone(e.target.value))} className={inputCls} />
+                    <a href={`tel:${CLEAN_PHONE}`} className="text-3xl md:text-4xl font-bold text-white hover:text-blue-500 transition-colors block pl-7">{PHONE}</a>
+                  </div>
+
+                  <div className="group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <MapPin className="h-4 w-4 text-blue-500" />
+                      <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Service Area</span>
+                    </div>
+                    <div className="pl-7">
+                      <div className="text-lg font-medium text-white">Houston, TX &amp; Surrounding</div>
+                      <div className="text-sm text-neutral-400 mt-1">25-Mile Radius</div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Email *</label>
-                    <input required name="email" type="email" placeholder="you@email.com" className={inputCls} />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Service *</label>
-                    <select required name="service" className={inputCls}>
-                      <option value="">Select a service...</option>
-                      {['Painting Services', 'Kitchen Remodels', 'Full House Remodeling', 'Bathroom Renovation', 'Drywall & Repairs', 'Power Washing', 'Cabinets', 'Siding', 'Other'].map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wide">Project Details</label>
-                    <textarea name="message" rows={3} placeholder="Tell us about your project..." className={`${inputCls} resize-none`} />
-                  </div>
-
-                  <button type="submit" disabled={formStatus === 'sending'} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-lg transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2">
-                    {formStatus === 'sending' ? 'Sending...' : 'Submit Request'} <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  {formStatus === 'success' && (
-                    <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm rounded-lg flex items-center gap-2">
-                      <Check className="w-5 h-5 shrink-0" /> Message received! We&apos;ll get back to you within 24 hours.
+                  <div className="group">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Clock className="h-4 w-4 text-blue-500" />
+                      <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Hours</span>
                     </div>
-                  )}
-                  {formStatus === 'error' && (
-                    <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg">{formError}</div>
-                  )}
-                </form>
-              </div>
-            </motion.div>
-
-            {/* Contact Info */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.5 }} className="space-y-5 lg:sticky lg:top-28">
-              {/* Phone */}
-              <div className="p-6 rounded-xl bg-neutral-950 border border-neutral-800">
-                <div className="flex items-start gap-4">
-                  <div className="h-11 w-11 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                    <Phone className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white mb-1">Call or Text</h3>
-                    <a href={`tel:${CLEAN_PHONE}`} className="text-xl font-bold text-white hover:text-blue-400 transition-colors">{PHONE}</a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hours */}
-              <div className="p-6 rounded-xl bg-neutral-950 border border-neutral-800">
-                <div className="flex items-start gap-4">
-                  <div className="h-11 w-11 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                    <Clock className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-bold text-white mb-3">Hours</h3>
-                    <div className="space-y-1.5 text-sm">
-                      <div className="flex justify-between"><span className="text-neutral-500">Mon – Sat</span><span className="text-neutral-300">7am – 6pm</span></div>
-                      <div className="flex justify-between"><span className="text-neutral-500">Sunday</span><span className="text-neutral-500">Closed</span></div>
+                    <div className="pl-7">
+                      <div className="text-lg font-medium text-white">Mon-Sat: 7am - 6pm</div>
+                      <div className="text-sm text-neutral-400 mt-1">Sunday: Closed</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Service Area */}
-              <div className="p-6 rounded-xl bg-neutral-950 border border-neutral-800">
-                <div className="flex items-start gap-4">
-                  <div className="h-11 w-11 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                    <MapPin className="h-5 w-5 text-blue-400" />
+              {/* Boxed Map (Not Extendo) */}
+              <div ref={mapRef} className="bg-neutral-900/40 border border-neutral-800 rounded-2xl overflow-hidden aspect-square relative group">
+                <iframe
+                  src={mapEmbedSrc}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-700 opacity-50 group-hover:opacity-100 pointer-events-none"
+                />
+
+                {/* 25 Mile Radius Overlay */}
+                <div
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-red-500/55 bg-red-500/10 pointer-events-none z-10 animate-pulse-slow"
+                  style={{
+                    width: `${Math.round(radiusPixels * 2)}px`,
+                    height: `${Math.round(radiusPixels * 2)}px`,
+                  }}
+                  aria-label={`Accurate ${SERVICE_RADIUS_MILES}-mile service radius centered on Houston`}
+                >
+                  <div className="absolute top-1/2 left-1/2 w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.2)]" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-lg whitespace-nowrap">
+                    25 Mile Radius
                   </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white mb-2">Service Area</h3>
-                    <p className="text-sm text-neutral-400 leading-relaxed">Houston and surrounding 25-mile radius — Katy, Sugar Land, Pearland, Cypress, The Woodlands, Spring, and more.</p>
+                </div>
+
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 pointer-events-none z-20">
+                  <span className="text-white font-bold text-sm tracking-wide">Serving Greater Houston</span>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: FORM (Using QuoteForm Component) */}
+            <div id="contact-form" className="lg:sticky lg:top-24 lg:self-start">
+              <div className="mb-8">
+                <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-6">Request Your<br /><span className="text-blue-500">Free Quote</span></h2>
+
+                {/* Trust Badges - Clean Row */}
+                <div className="flex flex-wrap gap-x-8 gap-y-3">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm font-medium text-neutral-300">No pressure, no obligation</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm font-medium text-neutral-300">Written estimates</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm font-medium text-neutral-300">Fast response times</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-emerald-500" />
+                    <span className="text-sm font-medium text-neutral-300">Privacy guaranteed</span>
                   </div>
                 </div>
               </div>
 
-              {/* Trust */}
-              <div className="p-6 rounded-xl bg-neutral-950 border border-neutral-800">
-                <div className="space-y-3">
-                  {[
-                    { icon: ShieldCheck, text: 'Fully Licensed & Insured', color: 'text-blue-400' },
-                    { icon: Star, text: '5.0 Star Google Rating', color: 'text-amber-400' },
-                    { icon: Check, text: '100% Satisfaction Guarantee', color: 'text-emerald-400' },
-                  ].map(f => (
-                    <div key={f.text} className="flex items-center gap-3">
-                      <f.icon className={`h-4 w-4 ${f.color} shrink-0`} />
-                      <span className="text-sm text-neutral-300">{f.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              {/* Using Shared QuoteForm Component */}
+              <QuoteForm />
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* ════════════════ FINAL CTA ════════════════ */}
-      <section className="relative py-24 md:py-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-700 via-red-800 to-red-900" />
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-        <div className={`${shell} relative z-10 text-center`}>
-          <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">
-            Prefer to Talk?
-          </h2>
-          <p className="text-red-100 text-lg max-w-lg mx-auto mb-10">
-            Give us a call and we&apos;ll walk you through the process. Free estimates, no obligation.
-          </p>
-          <a href={`tel:${CLEAN_PHONE}`} className="px-10 py-4 bg-white hover:bg-neutral-100 text-red-700 font-bold uppercase tracking-wider text-sm rounded-lg transition-all inline-flex items-center justify-center gap-2">
-            <Phone className="w-4 h-4" /> {PHONE}
-          </a>
+      {/* ════════════════ PROCESS ════════════════ */}
+      <section className="py-24 bg-neutral-950 border-t border-neutral-900">
+        <div className={shell}>
+          <div className="mb-20">
+            <span className="text-blue-500 font-semibold uppercase tracking-widest text-xs mb-4 block">How It Works</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight max-w-xl">
+              From Concept to <span className="text-blue-500">Completion.</span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10 md:gap-12">
+            {steps.map((step, i) => (
+              <div key={step.title} className="group relative pt-8 border-t border-neutral-800 hover:border-blue-500 transition-colors duration-500">
+                <div className="absolute top-0 left-0 w-0 h-[1px] bg-blue-500 group-hover:w-full transition-all duration-700 ease-out" />
+
+                <div className="text-6xl font-bold text-neutral-800 group-hover:text-neutral-700 transition-colors mb-6 font-display">
+                  0{i + 1}
+                </div>
+
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
+                  {step.title}
+                </h3>
+
+                <p className="text-neutral-400 text-sm md:text-base leading-relaxed">
+                  {step.body}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <Footer />
-
-      {/* Mobile Sticky Bar */}
-      <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
-        <div className="flex gap-2 p-2 bg-black/95 backdrop-blur-md border border-neutral-800 shadow-2xl rounded-xl">
-          <a href={`tel:${CLEAN_PHONE}`} className="flex-1 flex items-center justify-center gap-2 py-3 bg-neutral-800 text-white text-xs font-bold uppercase rounded-lg hover:bg-neutral-700 transition-colors">
-            <Phone className="h-3 w-3" /> Call Us
-          </a>
-          <button onClick={scrollToForm} className="flex-1 py-3 bg-red-600 text-white text-xs font-bold uppercase rounded-lg hover:bg-red-700 transition-colors">
-            Free Quote
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

@@ -59,7 +59,7 @@ export async function POST(req: Request) {
   let data: Record<string, unknown>;
   try {
     data = await parseBody(req);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ ok: false, error: 'Invalid request body.' }, { status: 400 });
   }
 
@@ -193,11 +193,11 @@ export async function POST(req: Request) {
   }).format(new Date());
   const safeName = name || 'Website Form';
   const safeService = service || 'Website Form';
-  const brandName = 'A&N Painting and Remodeling';
+  const brandName = 'A&N Painting and Renovations';
   const brandAddress = 'Houston, TX';
   const brandPrimary = '#1e3a8a';
   const brandAccent = '#dc2626';
-  const fromEmail = process.env.LEAD_FROM_EMAIL || 'A&N Painting and Remodeling <leads@anpaintingremodeling.com>';
+  const fromEmail = process.env.LEAD_FROM_EMAIL || 'A&N Painting and Renovations <leads@anpaintingremodeling.com>';
   const subject = `New Lead: ${safeService} | ${safeName}`;
 
   const pageUrlIsDev =
@@ -311,7 +311,7 @@ export async function POST(req: Request) {
       <tr>
         <td style="padding:0 20px 22px;">
           <div style="border-left:4px solid ${brandAccent};padding:12px;background:#f8fafc;border-radius:8px;font-size:12px;color:#475569;line-height:1.5;">
-            This lead came from the A&N Painting and Remodeling website form.
+            This lead came from the A&N Painting and Renovations website form.
             <span style="display:block;margin-top:6px;font-weight:700;color:${brandPrimary};">${brandAddress}</span>
           </div>
         </td>

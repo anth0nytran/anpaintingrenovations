@@ -1,0 +1,2 @@
+[     569ms] [ERROR] Access to font at 'https://ethomeren.dreamhosters.com/wp-content/uploads/elementor/google-fonts/fonts/jost-92zatbhpnqw73otd4g.woff2' from origin 'https://etsrr.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ https://etsrr.com/services/:0
+[     569ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://ethomeren.dreamhosters.com/wp-content/uploads/elementor/google-fonts/fonts/jost-92zatbhpnqw73otd4g.woff2:0
