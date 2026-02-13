@@ -75,7 +75,7 @@ export default function ANPaintingRenovations() {
   const coreServices = [
     { name: 'Interior & Exterior Painting', icon: Paintbrush, desc: 'Premium residential and commercial painting services in Houston. Expert color matching, meticulous surface preparation, and top-quality paints for a flawless, long-lasting finish inside and out.', image: '/images/painting.webp', link: '/services#painting' },
     { name: 'Kitchen & Bath Renovations', icon: Home, desc: 'Complete kitchen and bathroom renovations that increase your home\'s value. Custom cabinets, countertops, fixtures, tile work, and full-service design from concept to completion.', image: '/images/kitchen.webp', link: '/services#kitchen-bath' },
-    { name: 'Full Home Renovations', icon: Hammer, desc: 'Comprehensive home renovations for Houston homeowners. From single-room upgrades to whole-house transformations - drywall, siding, flooring, and everything in between.', image: '/images/full_home.webp', link: '/services#renovations' },
+    { name: 'Full Home Renovations', icon: Hammer, desc: 'Comprehensive home renovations for Houston homeowners. From single-room upgrades to whole-house transformations - drywall, siding, flooring, and everything in between.', image: '/images/renovation.JPG', link: '/services#renovations' },
   ];
 
   const steps = [
@@ -110,13 +110,16 @@ export default function ANPaintingRenovations() {
                 <span className="text-white/80 text-xs font-semibold tracking-wider uppercase">Houston&apos;s Trusted Contractor</span>
               </div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight">
-                Houston Painting<br />
-                <span className="text-blue-500">&amp; Home Renovations.</span>
+              <h1 className="font-bold leading-[1.05] tracking-tight text-white">
+                <span className="block text-2xl sm:text-3xl lg:text-4xl mb-4 font-medium tracking-wide">A&amp;N Painting and Renovations</span>
+                <span className="text-5xl sm:text-6xl lg:text-7xl block">
+                  Houston&apos;s Premier<br />
+                  <span className="text-red-600">Painting</span> &amp; <span className="text-blue-500">Renovations.</span>
+                </span>
               </h1>
 
               <p className="text-lg sm:text-xl leading-relaxed text-neutral-300 max-w-lg">
-                Houston&apos;s top-rated contractor for interior and exterior painting, kitchen and bath renovations, and complete home renovations. Licensed, insured, and committed to excellence.
+                Houston&apos;s top-rated contractor. Specializing in <strong className="text-white font-semibold">interior &amp; exterior painting</strong>, <strong className="text-white font-semibold">luxury kitchen remodels</strong>, and <strong className="text-white font-semibold">complete home makeovers</strong>. Licensed, insured, and committed to excellence.
               </p>
 
               <div className="flex flex-wrap gap-10 pt-6 border-t border-white/10">
@@ -160,8 +163,8 @@ export default function ANPaintingRenovations() {
       <section id="services" className="relative py-24 md:py-32 bg-neutral-950">
         <div className={shell}>
           <div className="text-center mb-16">
-            <span className="text-blue-500 font-semibold uppercase tracking-widest text-xs">Our Core Services</span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mt-4">What We <span className="text-blue-500">Do Best</span></h2>
+            <span className="text-blue-500 font-semibold uppercase tracking-widest text-xs">Our Expert Services</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mt-4">Painting, Kitchens &amp; <span className="text-blue-500">Renovations</span></h2>
             <p className="text-neutral-400 max-w-2xl mx-auto mt-4">Trusted by homeowners across Houston for expert painting, kitchen and bath renovations, and full home renovations. Every project backed by our 100% satisfaction guarantee.</p>
           </div>
 
@@ -221,10 +224,10 @@ export default function ANPaintingRenovations() {
             <div className="lg:sticky lg:top-32">
               <span className="text-blue-500 font-semibold uppercase tracking-widest text-xs mb-4 block">Why Homeowners Choose Us</span>
               <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.1] mb-6">
-                Honest Work.<br /><span className="text-blue-500">Guaranteed Results.</span>
+                Why Houston Chooses<br /><span className="text-blue-500">A&amp;N Renovations.</span>
               </h2>
               <p className="text-neutral-400 text-lg leading-relaxed max-w-lg mb-12">
-                We&apos;ve built our reputation on clear communication, fair pricing, and delivering exactly what we promise. That&apos;s why Houston homeowners trust A&amp;N with their most important investment — their home.
+                We&apos;ve built our reputation on clear communication, fair pricing, and delivering exactly what we promise. That&apos;s why A&amp;N is Houston&apos;s trusted choice for painting and home improvements.
               </p>
               <div className="grid grid-cols-2 gap-8 border-t border-neutral-800 pt-10">
                 <div>
@@ -277,98 +280,13 @@ export default function ANPaintingRenovations() {
         smallText="Serving the Greater Houston Area"
       />
 
-      {/* ════════════════ REVIEWS ════════════════ */}
-      <section id="reviews" className="py-24 md:py-32 bg-black">
-        <div className={shell}>
-          <div className="text-center mb-16">
-            <span className="text-blue-500 font-semibold uppercase tracking-widest text-xs mb-4 block">Client Testimonials</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">What Houston Homeowners <span className="text-blue-500">Say</span></h2>
-            <p className="text-neutral-400 max-w-lg mx-auto">Real reviews from real clients. See why families across Houston trust A&amp;N for their painting and renovation projects.</p>
-          </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div key={reviewPage} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="grid gap-6 md:grid-cols-3">
-              {config.testimonials.slice(reviewPage * reviewsPerPage, (reviewPage + 1) * reviewsPerPage).map((t, idx) => (
-                <div key={`${t.name}-${idx}`} className="group p-6 md:p-8 rounded-xl bg-neutral-900/60 border border-neutral-800 hover:border-blue-500/30 transition-all duration-300 flex flex-col">
-                  <div className="flex gap-1 mb-4">
-                    {[0, 1, 2, 3, 4].map(i => <Star key={i} className="h-4 w-4 text-amber-400 fill-amber-400" />)}
-                  </div>
-                  <p className="text-neutral-300 text-sm leading-relaxed mb-6 flex-1">&ldquo;{t.quote}&rdquo;</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-neutral-800">
-                    <div className="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">{t.name.charAt(0)}</div>
-                    <div>
-                      <div className="text-sm font-semibold text-white">{t.name}</div>
-                      <div className="text-xs text-blue-400">Verified Client</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-
-          <div className="flex justify-center mt-10 gap-4 items-center">
-            <button onClick={prevReviewPage} className="p-2.5 rounded-full border border-neutral-700 hover:border-red-500 hover:bg-red-500/10 transition-all" aria-label="Previous">
-              <ArrowRight className="h-4 w-4 text-neutral-400 rotate-180" />
-            </button>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalReviewPages }).map((_, i) => (
-                <div key={i} className={`h-1.5 rounded-full transition-all ${i === reviewPage ? 'w-8 bg-red-500' : 'w-2 bg-neutral-700'}`} />
-              ))}
-            </div>
-            <button onClick={nextReviewPage} className="p-2.5 rounded-full border border-neutral-700 hover:border-red-500 hover:bg-red-500/10 transition-all" aria-label="Next">
-              <ArrowRight className="h-4 w-4 text-neutral-400" />
-            </button>
-          </div>
-
-          <div className="mt-12 text-center">
-            <a href="https://www.google.com/search?q=A%26N+Painting+and+Renovations+Houston+reviews" target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-3 px-6 py-3 rounded-lg bg-neutral-900 border border-neutral-700 text-white text-sm font-semibold hover:border-blue-500 transition-all group">
-              <GoogleLogo className="h-4 w-4" />
-              Read All Reviews on Google
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════ PROCESS ════════════════ */}
-      <section id="process" className="py-24 md:py-32 bg-neutral-950">
-        <div className={shell}>
-          <div className="mb-20">
-            <span className="text-blue-500 font-semibold uppercase tracking-widest text-xs mb-4 block">How It Works</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight max-w-xl">
-              From Concept to <span className="text-blue-500">Completion.</span>
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-10 md:gap-12">
-            {steps.map((step, i) => (
-              <div key={step.title} className="group relative pt-8 border-t border-neutral-800 hover:border-blue-500 transition-colors duration-500">
-                <div className="absolute top-0 left-0 w-0 h-[1px] bg-blue-500 group-hover:w-full transition-all duration-700 ease-out" />
-
-                <div className="text-6xl font-bold text-neutral-800 group-hover:text-neutral-700 transition-colors mb-6 font-display">
-                  0{i + 1}
-                </div>
-
-                <h3 className="text-xl md:text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
-                  {step.title}
-                </h3>
-
-                <p className="text-neutral-400 text-sm md:text-base leading-relaxed">
-                  {step.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ════════════════ FAQ ════════════════ */}
       <section id="faq" className="py-24 md:py-32 bg-black">
         <div className={shell}>
           <div className="grid md:grid-cols-[0.4fr_0.6fr] gap-16 items-start">
             <div className="md:sticky md:top-28">
               <span className="text-blue-500 font-semibold uppercase tracking-widest text-xs mb-4 block">FAQ</span>
-              <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">Common <span className="text-blue-500">Questions</span></h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">Frequently Asked <span className="text-blue-500">Questions</span></h2>
               <p className="text-neutral-400 leading-relaxed mb-8">Have a question about our painting or renovation services? We&apos;re here to help.</p>
               <a href={`tel:${cleanPhone}`} className="inline-flex items-center gap-3 px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition-colors">
                 <Phone className="h-4 w-4" /> {config.phone}

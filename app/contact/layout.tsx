@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Get a Free Estimate | A&N Painting and Renovations Houston',
     description: 'Request a free, no-obligation painting or renovation estimate. Call (832) 267-6657 or submit our online form. Serving Houston, Katy, Sugar Land, Pearland, Cypress, and surrounding areas.',
-    url: 'https://anpaintingremodeling.com/contact',
+    url: 'https://anpaintingrenovations.com/contact',
     images: [
       {
         url: '/images/hero-v2.jpeg',
@@ -40,7 +40,7 @@ const contactSchema = {
   '@type': 'LocalBusiness',
   name: 'A&N Painting and Renovations',
   telephone: '+18322676657',
-  url: 'https://anpaintingremodeling.com',
+  url: 'https://anpaintingrenovations.com',
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '+18322676657',

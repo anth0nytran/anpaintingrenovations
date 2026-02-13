@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Painting & Renovation Services in Houston, TX | A&N Painting and Renovations',
     description: 'Professional interior & exterior painting, kitchen & bath renovations, and complete home renovations in Houston. 15+ years experience. Free estimates, licensed and insured.',
-    url: 'https://anpaintingremodeling.com/services',
+    url: 'https://anpaintingrenovations.com/services',
     images: [
       {
         url: '/images/kitchen.JPG',
@@ -95,7 +95,7 @@ const serviceSchema = {
     '@type': 'LocalBusiness',
     name: 'A&N Painting and Renovations',
     telephone: '+18322676657',
-    url: 'https://anpaintingremodeling.com',
+    url: 'https://anpaintingrenovations.com',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Houston',

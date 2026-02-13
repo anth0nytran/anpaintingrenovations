@@ -17,12 +17,12 @@ const displayFont = Oswald({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://anpaintingremodeling.com'),
+  metadataBase: new URL('https://anpaintingrenovations.com'),
   title: {
     default: "Houston Painting & Renovations Contractor | A&N Painting and Renovations",
     template: "%s | A&N Painting and Renovations",
   },
-  description: "Houston's top-rated painting and renovation contractor. 15+ years of expert interior & exterior painting, kitchen & bath renovations, and full home renovations. Licensed, insured, 5-star rated on Google. Free estimates — call (832) 267-6657. Serving Houston, Katy, Sugar Land, Pearland, Cypress, The Woodlands, and surrounding areas.",
+  description: "Transform your home with A&N Painting and Renovations. Expert interior/exterior painting, kitchen & bath remodels, and home makeovers in Houston. Free estimates. Call (832) 267-6657.",
   alternates: {
     canonical: '/',
   },
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Houston's #1 Painting & Renovation Contractor | A&N Painting and Renovations",
     description: "15+ years of expert painting, kitchen & bath renovations, and full home renovations in Houston TX. 5-star rated, licensed & insured, 100% satisfaction guaranteed. Free estimates.",
-    url: 'https://anpaintingremodeling.com',
+    url: 'https://anpaintingrenovations.com',
     siteName: 'A&N Painting and Renovations',
     locale: 'en_US',
     type: 'website',
@@ -68,12 +68,9 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   icons: {
-    icon: [
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-    ],
-    shortcut: '/favicon-32x32.png',
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    icon: '/images/real_logo.png',
+    shortcut: '/images/real_logo.png',
+    apple: '/images/real_logo.png',
   },
   other: {
     'geo.region': 'US-TX',
@@ -101,9 +98,9 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
               "name": "A&N Painting and Renovations",
-              "image": "https://anpaintingremodeling.com/images/hero-v2.jpeg",
-              "@id": "https://anpaintingremodeling.com",
-              "url": "https://anpaintingremodeling.com",
+              "image": "https://anpaintingrenovations.com/images/hero-v2.jpeg",
+              "@id": "https://anpaintingrenovations.com",
+              "url": "https://anpaintingrenovations.com",
               "telephone": "+18322676657",
               "description": "Residential and commercial painting, kitchen and bath renovations, full home renovations, drywall repairs, and more. Serving Houston and surrounding areas.",
               "address": {
@@ -188,10 +185,10 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "A&N Painting and Renovations",
               "alternateName": ["A&N Painting and Renovations Houston", "AN Painting and Renovations"],
-              "url": "https://anpaintingremodeling.com",
+              "url": "https://anpaintingrenovations.com",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://anpaintingremodeling.com/services?q={search_term_string}",
+                "target": "https://anpaintingrenovations.com/services?q={search_term_string}",
                 "query-input": "required name=search_term_string"
               }
             })

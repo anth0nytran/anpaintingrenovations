@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/private/'],
       },
     ],
-    sitemap: 'https://anpaintingremodeling.com/sitemap.xml',
-    host: 'https://anpaintingremodeling.com',
+    sitemap: 'https://anpaintingrenovations.com/sitemap.xml',
+    host: 'https://anpaintingrenovations.com',
   };
 }

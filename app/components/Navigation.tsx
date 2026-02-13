@@ -39,11 +39,10 @@ export default function Navigation({ onQuoteClick }: { onQuoteClick?: () => void
 
   return (
     <nav
-      className={`fixed top-0 w-full z-50 border-b transition-all duration-300 ${
-        scrolled
-          ? 'bg-black/95 backdrop-blur-md border-neutral-800 shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
-          : 'bg-black/70 backdrop-blur-sm border-neutral-900/70'
-      }`}
+      className={`fixed top-0 w-full z-50 border-b transition-all duration-300 ${scrolled
+        ? 'bg-black/95 backdrop-blur-md border-neutral-800 shadow-[0_10px_35px_rgba(0,0,0,0.35)]'
+        : 'bg-black/70 backdrop-blur-sm border-neutral-900/70'
+        }`}
     >
       <div className={`${shell} relative flex items-center justify-between py-2.5`}>
         {/* Left: Logo */}
@@ -130,14 +129,15 @@ export default function Navigation({ onQuoteClick }: { onQuoteClick?: () => void
         </div>
       </div>
 
+
       {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden bg-neutral-900 border-t border-neutral-800">
             <div className="flex flex-col p-6 space-y-4">
               <Link href="/" className="text-lg font-semibold text-neutral-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-              <Link href="/services" className="text-lg font-semibold text-neutral-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>All Services</Link>
-              <Link href="/services#gallery" className="text-lg font-semibold text-neutral-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
+
+              <Link href="/services" className="text-lg font-semibold text-neutral-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Services</Link>
               <div className="pl-4 space-y-3 border-l border-neutral-800">
                 {serviceLinks.map(s => (
                   <Link key={s.href} href={s.href} className="block text-sm text-neutral-400 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>
@@ -145,7 +145,10 @@ export default function Navigation({ onQuoteClick }: { onQuoteClick?: () => void
                   </Link>
                 ))}
               </div>
+
+              <Link href="/services#gallery" className="text-lg font-semibold text-neutral-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
               <Link href="/contact" className="text-lg font-semibold text-neutral-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+
               <button onClick={handleQuoteClick} className="mt-4 w-full py-4 bg-red-600 text-white font-bold rounded-lg">
                 Get a Free Quote
               </button>

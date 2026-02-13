@@ -155,6 +155,14 @@ export async function POST(req: Request) {
     'nigerian prince', 'lottery winner', 'congratulations you won',
     'click here now', 'act now', 'limited time',
     'work from home', 'make money fast', 'earn $$',
+    // New patterns based on user reports
+    'web design', 'website design', 'redesign', 'ui/ux', 'user interface', 'user experience',
+    'search engine', 'google search', 'search ranking', 'search result',
+    'indexing', 'searchregister', 'link building',
+    'online presence', 'digital marketing', 'online marketing',
+    'web traffic', 'website traffic',
+    'domain name', 'domain expiration', 'domain renewal',
+    'software development', 'app development', 'web development',
   ];
   if (spamKeywords.some(keyword => combinedText.includes(keyword))) {
     return NextResponse.json({ ok: true }, { status: 200 });
@@ -197,7 +205,7 @@ export async function POST(req: Request) {
   const brandAddress = 'Houston, TX';
   const brandPrimary = '#1e3a8a';
   const brandAccent = '#dc2626';
-  const fromEmail = process.env.LEAD_FROM_EMAIL || 'A&N Painting and Renovations <leads@anpaintingremodeling.com>';
+  const fromEmail = process.env.LEAD_FROM_EMAIL || 'A&N Painting and Renovations <leads@quicklaunchweb.us>';
   const subject = `New Lead: ${safeService} | ${safeName}`;
 
   const pageUrlIsDev =
