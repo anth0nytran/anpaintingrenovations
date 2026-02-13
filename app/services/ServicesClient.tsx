@@ -91,7 +91,7 @@ const galleryRow2 = [
     { src: '/images/gallery/IMG_0960.png', alt: 'Renovation project by A&N Painting and Renovations', orientation: 'horizontal' as const },
     { src: '/images/gallery/IMG_1634.jpeg', alt: 'Renovation project by A&N Painting and Renovations', orientation: 'vertical' as const },
     { src: '/images/gallery/IMG_1636.jpeg', alt: 'Renovation project by A&N Painting and Renovations', orientation: 'horizontal' as const },
-    { src: '/images/gallery/IMG_3123.png', alt: 'Renovation project by A&N Painting and Renovations', orientation: 'vertical' as const },
+
     { src: '/images/gallery/IMG_5710.png', alt: 'Renovation project by A&N Painting and Renovations', orientation: 'horizontal' as const },
 
 ];
@@ -324,10 +324,10 @@ export default function ServicesClient() {
                 </div>
 
                 {/* Scrolling gallery — row 1 (scrolls left) */}
-                <div className="relative mb-4">
-                    <div className="flex gap-4 animate-[scrollLeft_100s_linear_infinite]" style={{ width: 'max-content' }}>
+                <div className="relative mb-6">
+                    <div className="flex gap-6 animate-[scrollLeft_150s_linear_infinite]" style={{ width: 'max-content' }}>
                         {[...galleryRow1, ...galleryRow1].map((img, i) => (
-                            <div key={i} className="relative shrink-0 h-64 sm:h-80 rounded-xl overflow-hidden">
+                            <div key={i} className="relative shrink-0 h-64 sm:h-80 rounded-xl overflow-hidden bg-neutral-900 border border-white/5">
                                 <img
                                     src={img.src}
                                     alt={img.alt}
@@ -341,9 +341,9 @@ export default function ServicesClient() {
 
                 {/* Scrolling gallery — row 2 (scrolls right) */}
                 <div className="relative">
-                    <div className="flex gap-4 animate-[scrollRight_120s_linear_infinite]" style={{ width: 'max-content' }}>
+                    <div className="flex gap-6 animate-[scrollRight_180s_linear_infinite]" style={{ width: 'max-content' }}>
                         {[...galleryRow2, ...galleryRow2].map((img, i) => (
-                            <div key={i} className="relative shrink-0 h-64 sm:h-80 rounded-xl overflow-hidden">
+                            <div key={i} className="relative shrink-0 h-64 sm:h-80 rounded-xl overflow-hidden bg-neutral-900 border border-white/5">
                                 <img
                                     src={img.src}
                                     alt={img.alt}
@@ -366,6 +366,17 @@ export default function ServicesClient() {
             100% { transform: translateX(0); }
           }
         `}</style>
+
+                <div className="flex justify-center mt-12">
+                    <a
+                        href="https://www.facebook.com/profile.php?id=100092575963931&sk=photos"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-8 py-4 text-sm font-bold uppercase tracking-wider rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all group"
+                    >
+                        See More Photos <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                </div>
             </section>
 
             {/* ════════════════ FAQ ════════════════ */}
