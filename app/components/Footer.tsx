@@ -19,7 +19,7 @@ export default function Footer() {
               <NextImage src="/images/real_logo.svg" alt="A&N Painting and Renovations" width={56} height={56} className="h-14 w-14 object-contain" />
             </Link>
             <p className="text-neutral-400 text-sm leading-relaxed max-w-xs">
-              Houston&apos;s trusted painting and renovations contractor. Licensed, insured, and committed to transforming your home with quality craftsmanship.
+              A&N Painting and Renovations: A family business with 15+ years of experience. My story began in 2007 after graduating high school, working for my father as a painter, laying the foundations for what would become decades of hard work. Today, I&apos;ve established A&N Painting and Renovations to bring the highest quality craftsmanship, taking care of your home as our own.
             </p>
           </div>
 

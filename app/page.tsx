@@ -114,7 +114,7 @@ export default function ANPaintingRenovations() {
                 <span className="block text-2xl sm:text-3xl lg:text-4xl mb-4 font-medium tracking-wide">A&amp;N Painting and Renovations</span>
                 <span className="text-5xl sm:text-6xl lg:text-7xl block">
                   Houston&apos;s Premier<br />
-                  <span className="text-red-600">Painting</span> &amp; <span className="text-blue-500">Renovations.</span>
+                  <span className="text-blue-500">Painting &amp; Renovations.</span>
                 </span>
               </h1>
 
