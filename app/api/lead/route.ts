@@ -4,6 +4,33 @@ import { Resend } from 'resend';
 export const runtime = 'nodejs';
 
 const MAX_MESSAGE_LENGTH = 5000;
+const MAX_ADDRESS_LENGTH = 180;
+const MAX_ZIP_LENGTH = 10;
+const ADDRESS_ABBREVIATIONS: Record<string, string> = {
+  north: 'N',
+  south: 'S',
+  east: 'E',
+  west: 'W',
+  northeast: 'NE',
+  northwest: 'NW',
+  southeast: 'SE',
+  southwest: 'SW',
+  street: 'St',
+  avenue: 'Ave',
+  road: 'Rd',
+  drive: 'Dr',
+  lane: 'Ln',
+  boulevard: 'Blvd',
+  place: 'Pl',
+  court: 'Ct',
+  circle: 'Cir',
+  terrace: 'Ter',
+  parkway: 'Pkwy',
+  highway: 'Hwy',
+  suite: 'Ste',
+  apartment: 'Apt',
+  floor: 'Fl',
+};
 
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (char) => {
@@ -25,6 +52,55 @@ const escapeHtml = (value: string) =>
 
 const normalize = (value: unknown) =>
   typeof value === 'string' ? value.replace(/\r\n/g, '\n').trim() : '';
+
+const titleCaseWord = (word: string) =>
+  word
+    .split('-')
+    .map((segment) =>
+      segment
+        .split("'")
+        .map((part) => {
+          if (!part) return part;
+          const lower = part.toLowerCase();
+          return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+        })
+        .join("'")
+    )
+    .join('-');
+
+const normalizeAddressLine = (value: string) => {
+  const cleaned = value
+    .replace(/\r\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*,\s*/g, ', ')
+    .trim();
+
+  if (!cleaned) return '';
+
+  return cleaned
+    .split(' ')
+    .map((token) => {
+      const match = token.match(/^(.+?)([.,])?$/);
+      if (!match) return token;
+
+      const core = match[1];
+      const suffix = match[2] ?? '';
+      const key = core.toLowerCase().replace(/\./g, '');
+      const mapped = ADDRESS_ABBREVIATIONS[key];
+      if (mapped) return `${mapped}${suffix}`;
+
+      if (/^\d+[A-Za-z]?$/.test(core)) return `${core.toUpperCase()}${suffix}`;
+      if (/^[A-Za-z][A-Za-z'-]*$/.test(core)) return `${titleCaseWord(core)}${suffix}`;
+      return `${core}${suffix}`;
+    })
+    .join(' ');
+};
+
+const normalizeZipCode = (value: string) => {
+  const digits = value.replace(/\D/g, '').slice(0, 9);
+  if (digits.length <= 5) return digits;
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
 
 const pickField = (data: Record<string, unknown>, keys: string[]) => {
   for (const key of keys) {
@@ -91,15 +167,21 @@ export async function POST(req: Request) {
   const name = pickField(data, ['name', 'fullName', 'fullname']);
   const phone = pickField(data, ['phone', 'phoneNumber', 'phone_number', 'tel']);
   const email = pickField(data, ['email', 'emailAddress', 'email_address']);
+  const homeAddress = normalizeAddressLine(
+    pickField(data, ['homeAddress', 'home_address', 'streetAddress', 'street_address'])
+  );
+  const zipCode = normalizeZipCode(
+    pickField(data, ['zipCode', 'zip_code', 'postalCode', 'postal_code', 'zip'])
+  );
   const message = pickField(data, ['message', 'details', 'notes']);
   const company = pickField(data, ['company', 'companyName', 'company_name']);
   const service = pickField(data, ['service', 'serviceNeeded', 'service_needed']);
   const page = pickField(data, ['page', 'pageUrl', 'page_url']);
   const site = pickField(data, ['site', 'siteUrl', 'site_url']);
 
-  if (!name || !phone || !email || !service) {
+  if (!name || !phone || !email || !homeAddress || !zipCode || !service) {
     return NextResponse.json(
-      { ok: false, error: 'Please provide your name, phone, email, and service needed.' },
+      { ok: false, error: 'Please provide your name, phone, email, home address, zip code, and service needed.' },
       { status: 400 }
     );
   }
@@ -129,6 +211,30 @@ export async function POST(req: Request) {
     );
   }
 
+  if (homeAddress.length < 6 || homeAddress.length > MAX_ADDRESS_LENGTH) {
+    return NextResponse.json(
+      { ok: false, error: 'Please enter a valid home address.' },
+      { status: 400 }
+    );
+  }
+
+  const hasAddressLetter = /[A-Za-z]/.test(homeAddress);
+  const hasAddressNumber = /\d/.test(homeAddress);
+  const isPoBox = /\bP\.?\s*O\.?\s*BOX\b/i.test(homeAddress);
+  if (!hasAddressLetter || (!hasAddressNumber && !isPoBox)) {
+    return NextResponse.json(
+      { ok: false, error: 'Please enter a valid home address.' },
+      { status: 400 }
+    );
+  }
+
+  if (zipCode.length < 5 || zipCode.length > MAX_ZIP_LENGTH || !/^\d{5}(?:-\d{4})?$/.test(zipCode)) {
+    return NextResponse.json(
+      { ok: false, error: 'Please enter a valid ZIP code.' },
+      { status: 400 }
+    );
+  }
+
   if (message && message.length > MAX_MESSAGE_LENGTH) {
     return NextResponse.json(
       { ok: false, error: 'Message is too long. Please keep it under 5000 characters.' },
@@ -137,7 +243,7 @@ export async function POST(req: Request) {
   }
 
   // 3. Content filtering - detect spam patterns
-  const combinedText = `${name} ${email} ${message}`.toLowerCase();
+  const combinedText = `${name} ${email} ${homeAddress} ${zipCode} ${message}`.toLowerCase();
 
   // 3a. Check for excessive URLs (more than 2 is suspicious)
   const urlPattern = /https?:\/\/|www\./gi;
@@ -229,6 +335,8 @@ export async function POST(req: Request) {
     name ? `Name: ${name}` : '',
     phone ? `Phone: ${phone}` : '',
     email ? `Email: ${email}` : '',
+    homeAddress ? `Home Address: ${homeAddress}` : '',
+    zipCode ? `ZIP Code: ${zipCode}` : '',
     company ? `Company: ${company}` : '',
     service ? `Service: ${service}` : '',
     pageUrlDisplay ? `Page: ${pageUrlDisplay}` : '',
@@ -300,6 +408,8 @@ export async function POST(req: Request) {
                   <tr><td style="padding:10px 0;color:#64748b;width:120px;">Name</td><td style="padding:10px 0;color:#0f172a;font-weight:700;">${escapeHtml(safeName)}</td></tr>
                   <tr><td style="padding:10px 0;color:#64748b;">Phone</td><td style="padding:10px 0;"><a href="tel:${escapeHtml(phoneLink || phone)}" style="color:#0f172a;text-decoration:none;font-weight:700;">${escapeHtml(phone)}</a></td></tr>
                   <tr><td style="padding:10px 0;color:#64748b;">Email</td><td style="padding:10px 0;"><a href="mailto:${escapeHtml(email)}" style="color:#0f172a;text-decoration:none;font-weight:700;">${escapeHtml(email)}</a></td></tr>
+                  <tr><td style="padding:10px 0;color:#64748b;">Home Address</td><td style="padding:10px 0;color:#0f172a;font-weight:700;">${escapeHtml(homeAddress)}</td></tr>
+                  <tr><td style="padding:10px 0;color:#64748b;">ZIP Code</td><td style="padding:10px 0;color:#0f172a;font-weight:700;">${escapeHtml(zipCode)}</td></tr>
                   <tr><td style="padding:10px 0;color:#64748b;">Service</td><td style="padding:10px 0;color:#0f172a;font-weight:700;">${escapeHtml(safeService)}</td></tr>
                   ${pageUrlDisplay ? `<tr><td style="padding:10px 0;color:#64748b;">Page URL</td><td style="padding:10px 0;"><a href="${escapeHtml(page)}" style="color:${brandAccent};text-decoration:none;">${escapeHtml(pageUrlDisplay)}</a></td></tr>` : ''}
                   ${site ? `<tr><td style="padding:10px 0;color:#64748b;">Site</td><td style="padding:10px 0;"><a href="${escapeHtml(site)}" style="color:${brandAccent};text-decoration:none;">${escapeHtml(site)}</a></td></tr>` : ''}

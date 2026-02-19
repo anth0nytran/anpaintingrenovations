@@ -3,10 +3,87 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 
+const ADDRESS_ABBREVIATIONS: Record<string, string> = {
+    north: 'N',
+    south: 'S',
+    east: 'E',
+    west: 'W',
+    northeast: 'NE',
+    northwest: 'NW',
+    southeast: 'SE',
+    southwest: 'SW',
+    street: 'St',
+    avenue: 'Ave',
+    road: 'Rd',
+    drive: 'Dr',
+    lane: 'Ln',
+    boulevard: 'Blvd',
+    place: 'Pl',
+    court: 'Ct',
+    circle: 'Cir',
+    terrace: 'Ter',
+    parkway: 'Pkwy',
+    highway: 'Hwy',
+    suite: 'Ste',
+    apartment: 'Apt',
+    floor: 'Fl',
+};
+
+const titleCaseWord = (word: string) =>
+    word
+        .split('-')
+        .map((segment) =>
+            segment
+                .split("'")
+                .map((part) => {
+                    if (!part) return part;
+                    const lower = part.toLowerCase();
+                    return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+                })
+                .join("'")
+        )
+        .join('-');
+
+const normalizeAddress = (value: string) => {
+    const cleaned = value
+        .replace(/\r\n/g, ' ')
+        .replace(/\s+/g, ' ')
+        .replace(/\s*,\s*/g, ', ')
+        .trim();
+
+    if (!cleaned) return '';
+
+    return cleaned
+        .split(' ')
+        .map((token) => {
+            const match = token.match(/^(.+?)([.,])?$/);
+            if (!match) return token;
+
+            const core = match[1];
+            const suffix = match[2] ?? '';
+            const key = core.toLowerCase().replace(/\./g, '');
+            const mapped = ADDRESS_ABBREVIATIONS[key];
+            if (mapped) return `${mapped}${suffix}`;
+
+            if (/^\d+[A-Za-z]?$/.test(core)) return `${core.toUpperCase()}${suffix}`;
+            if (/^[A-Za-z][A-Za-z'-]*$/.test(core)) return `${titleCaseWord(core)}${suffix}`;
+            return `${core}${suffix}`;
+        })
+        .join(' ');
+};
+
+const normalizeZipCode = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 9);
+    if (digits.length <= 5) return digits;
+    return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
+
 export default function QuoteForm() {
     const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
     const [formError, setFormError] = useState('');
     const [phoneValue, setPhoneValue] = useState('');
+    const [homeAddressValue, setHomeAddressValue] = useState('');
+    const [zipCodeValue, setZipCodeValue] = useState('');
     const [timestamp] = useState(() => Date.now().toString());
 
     const formatPhone = (value: string) => {
@@ -26,15 +103,27 @@ export default function QuoteForm() {
         const name = String(fd.get('name') || '').trim();
         const phone = String(fd.get('phone') || '').trim();
         const email = String(fd.get('email') || '').trim();
+        const homeAddressRaw = String(fd.get('homeAddress') || fd.get('home_address') || '').trim();
+        const homeAddress = normalizeAddress(homeAddressRaw);
+        const zipCodeRaw = String(fd.get('zipCode') || fd.get('zip_code') || '').trim();
+        const zipCode = normalizeZipCode(zipCodeRaw);
         const service = String(fd.get('service') || '').trim();
         const honeypot = String(fd.get('website') || '').trim();
-        if (honeypot) { form.reset(); setPhoneValue(''); setFormStatus('success'); return; }
-        if (!name || !phone || !email || !service) { setFormStatus('error'); setFormError('Please provide your name, phone, email, and service needed.'); return; }
+        if (homeAddress) fd.set('homeAddress', homeAddress);
+        if (zipCode) fd.set('zipCode', zipCode);
+        setHomeAddressValue(homeAddress);
+        setZipCodeValue(zipCode);
+        if (honeypot) { form.reset(); setPhoneValue(''); setHomeAddressValue(''); setZipCodeValue(''); setFormStatus('success'); return; }
+        if (!name || !phone || !email || !homeAddress || !zipCode || !service) {
+            setFormStatus('error');
+            setFormError('Please provide your name, phone, email, home address, zip code, and service needed.');
+            return;
+        }
         try {
             const res = await fetch('/api/lead', { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
             const payload = await res.json().catch(() => null);
             if (!res.ok || !payload?.ok) { setFormStatus('error'); setFormError(payload?.error || 'Something went wrong. Please try again.'); return; }
-            form.reset(); setPhoneValue(''); setFormStatus('success');
+            form.reset(); setPhoneValue(''); setHomeAddressValue(''); setZipCodeValue(''); setFormStatus('success');
         } catch { setFormStatus('error'); setFormError('Something went wrong. Please try again.'); }
     };
 
@@ -70,6 +159,41 @@ export default function QuoteForm() {
                 <div>
                     <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wide">Email</label>
                     <input required name="email" type="email" placeholder="you@email.com" className={inputCls} />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="sm:col-span-2">
+                        <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wide">Home Address</label>
+                        <input
+                            required
+                            name="homeAddress"
+                            type="text"
+                            autoComplete="street-address"
+                            placeholder="1234 Westheimer Rd"
+                            value={homeAddressValue}
+                            onChange={(e) => setHomeAddressValue(e.target.value)}
+                            onBlur={(e) => {
+                                const normalized = normalizeAddress(e.target.value);
+                                setHomeAddressValue(normalized);
+                            }}
+                            className={inputCls}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-neutral-400 mb-1.5 uppercase tracking-wide">ZIP Code</label>
+                        <input
+                            required
+                            name="zipCode"
+                            type="text"
+                            autoComplete="postal-code"
+                            inputMode="numeric"
+                            placeholder="77006"
+                            value={zipCodeValue}
+                            onChange={(e) => setZipCodeValue(normalizeZipCode(e.target.value))}
+                            onBlur={(e) => setZipCodeValue(normalizeZipCode(e.target.value))}
+                            className={inputCls}
+                        />
+                    </div>
                 </div>
 
                 <div>
